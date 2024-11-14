@@ -1,0 +1,97 @@
+
+
+//1. Create Slice , create a file in utils and write followings
+
+import {createSlice} from "@reduxjs/toolkit"
+// it takes 3 parameters as objects - name , initialState<Obj> , reducers
+// Reducers gets access of 2 parmeters - state,action
+
+const cartSlice = createSlice({
+    name:"cart",
+    initialState:{
+        value : 0,
+        items : []
+    },
+    reducers : {
+        addValue: (state,action) => {
+            state.value += 1;
+        },
+        decrementValue : (state,action) =>{
+            state.value -= 1;
+        },
+        addItem : (state,action) =>{
+            state.items.push(action.payload)
+        }
+    }
+})
+
+// it returns an object of the following format
+/*
+{
+    name : "cart"
+    actions:{
+        addValue:{},
+        ...
+    },
+    reducer:fn reducer function that is responsible for updating the state based on the actions defined in your slice.
+}
+    format of returned reducer (state, action) => newState
+*/
+
+export const {addValue,decrementValue,addItem} = cartSlice.actions;
+export default cartSlice.reducer;
+
+
+//2. Create global store
+
+import {configureStore} from "@reduxjs/toolkit"
+import cartReducer from "./utils/cartReducer"
+
+const appStore = configureStore({
+    reducers:{
+        cart : cartReducer,
+        user : userReducer
+    }
+})
+export default appStore;
+
+/*
+The object returned by configureStore contains the following key properties and methods:
+
+getState(): A function that returns the current state of the store.
+Example: store.getState() gives you access to the entire Redux state tree.
+
+dispatch(): A function used to dispatch actions to the store.
+Example: store.dispatch(action) dispatches an action to trigger state updates.
+
+subscribe(): A function to subscribe to store updates, so you can run some code whenever the store's state changes.
+Example: store.subscribe(() => console.log(store.getState())) will log the state to the console whenever the state changes.
+
+replaceReducer() (optional): A function that allows you to replace the reducer for the store dynamically. It's more advanced and not used in most simple applications.
+
+[Symbol.observable](): This allows the store to be used with libraries that support the Observable pattern (e.g., RxJS).
+
+*/
+
+
+//3. Provide the store to react app . On the top of the entry file(app.js) give the provider
+// It takes store as a prop 
+// Whereever you want to use the store just wrap the provider there
+import {Provider, useDispatch} from "react-redux"
+import {appStore} from "./utils/appStore";
+
+<Provider store ={appStore}>
+
+</Provider>
+
+// 4. Subscribe to portion of the store
+import { useSelector } from "react-redux";
+
+
+const cartItem = useSelector((store)=>store.cart.items) // it is subscribing to only the items of cart slice , if item value changes then only it will change the ui using cartItem
+
+// 4. use dispatch hook to dispatch action
+
+const handleClick = ()=>{
+useDispatch(addItem("pizza"))
+}
